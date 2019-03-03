@@ -21,11 +21,11 @@
 2. Add photos of target criminal to S3 and run the command below with aws-cli
     ```
     aws rekognition index-faces \      
-          --image '{"S3Object":{"Bucket":"aident-criminal-faces","Name":"avenger-villains.jpg"}}' \
+          --image '{"S3Object":{"Bucket":"aident-criminal-faces","Name":"thanos.jpg"}}' \
           --collection-id "criminalFaces" \
           --quality-filter "AUTO" \
           --detection-attributes "ALL" \
-          --external-image-id "avenger-villains.jpg"
+          --external-image-id "thanos"
     ```
 3. You can check the collection's content with the command below
     ```
