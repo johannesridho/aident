@@ -12,11 +12,12 @@ import (
 )
 
 type Configuration struct {
-	Region       string
-	BucketName   string
-	SnsTopic     string
-	RekRole      string
-	CollectionId string
+	Region                 string
+	BucketName             string
+	LabelDetectionSnsTopic string
+	FaceSearchSnsTopic     string
+	RekRole                string
+	CollectionId           string
 }
 
 func main() {
@@ -30,11 +31,12 @@ func StartCrimeDetectionHandler(ctx context.Context, event events.S3Event) (stri
 	log.Printf("S3 video file name: %v", videoFileName)
 
 	config := Configuration{
-		Region:       os.Getenv("REGION"),
-		BucketName:   os.Getenv("S3_BUCKET_NAME"),
-		SnsTopic:     os.Getenv("SNS_TOPIC_ARN"),
-		RekRole:      os.Getenv("REKOGNITION_ROLE_ARN"),
-		CollectionId: os.Getenv("COLLECTION_ID"),
+		Region:                 os.Getenv("REGION"),
+		BucketName:             os.Getenv("S3_BUCKET_NAME"),
+		LabelDetectionSnsTopic: os.Getenv("SNS_TOPIC_ARN"),
+		FaceSearchSnsTopic:     os.Getenv("FACE_SEARCH_TOPIC_ARN"),
+		RekRole:                os.Getenv("REKOGNITION_ROLE_ARN"),
+		CollectionId:           os.Getenv("COLLECTION_ID"),
 	}
 
 	video := rekognition.Video{
@@ -44,14 +46,12 @@ func StartCrimeDetectionHandler(ctx context.Context, event events.S3Event) (stri
 		},
 	}
 
-	notificationChannel := rekognition.NotificationChannel{SNSTopicArn: &config.SnsTopic, RoleArn: &config.RekRole}
-
-	labelDetectionJobId, err := startLabelDetection(config, video, notificationChannel)
+	labelDetectionJobId, err := startLabelDetection(config, video)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	faceSearchJobId, err := startFaceSearch(config, video, notificationChannel)
+	faceSearchJobId, err := startFaceSearch(config, video)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -62,7 +62,7 @@ func StartCrimeDetectionHandler(ctx context.Context, event events.S3Event) (stri
 	return "success", nil
 }
 
-func startLabelDetection(config Configuration, video rekognition.Video, notificationChannel rekognition.NotificationChannel) (string, error) {
+func startLabelDetection(config Configuration, video rekognition.Video) (string, error) {
 	session, err := session.NewSession(&aws.Config{Region: aws.String(config.Region)})
 	if err != nil {
 		return "", err
@@ -72,6 +72,8 @@ func startLabelDetection(config Configuration, video rekognition.Video, notifica
 
 	minConfidence := float64(50)
 	jobTag := "AidentStartLabelDetection"
+
+	notificationChannel := rekognition.NotificationChannel{SNSTopicArn: &config.LabelDetectionSnsTopic, RoleArn: &config.RekRole}
 
 	input := rekognition.StartLabelDetectionInput{
 		Video:               &video,
@@ -90,7 +92,7 @@ func startLabelDetection(config Configuration, video rekognition.Video, notifica
 	return jobId, nil
 }
 
-func startFaceSearch(config Configuration, video rekognition.Video, notificationChannel rekognition.NotificationChannel) (string, error) {
+func startFaceSearch(config Configuration, video rekognition.Video) (string, error) {
 	session, err := session.NewSession(&aws.Config{Region: aws.String(config.Region)})
 	if err != nil {
 		return "", err
@@ -99,6 +101,8 @@ func startFaceSearch(config Configuration, video rekognition.Video, notification
 	rek := rekognition.New(session)
 
 	jobTag := "AidentStartFaceSearch"
+
+	notificationChannel := rekognition.NotificationChannel{SNSTopicArn: &config.FaceSearchSnsTopic, RoleArn: &config.RekRole}
 
 	input := rekognition.StartFaceSearchInput{
 		Video:               &video,
