@@ -20,7 +20,10 @@ import com.amazonaws.services.rekognition.model.LabelDetectionSortBy;
 import com.amazonaws.services.rekognition.model.VideoMetadata;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.AmazonSNSClientBuilder;
+import com.amazonaws.services.sns.model.PublishRequest;
+import com.amazonaws.services.sns.model.PublishResult;
 
 
 public class JobCompletionHandler implements RequestHandler<SNSEvent, String> {
@@ -113,6 +116,10 @@ public class JobCompletionHandler implements RequestHandler<SNSEvent, String> {
          }
       } while (labelDetectionResult != null && labelDetectionResult.getNextToken() != null);
       
+      if (suspiciousLabelsCount > 0) {
+    	  publishSNS(label, context);
+	  }
+      
       logger.log("Total number of labels : " + labelsCount);
       logger.log("labels : " + labels);
 
@@ -130,6 +137,21 @@ public class JobCompletionHandler implements RequestHandler<SNSEvent, String> {
 	      suspiciousLabels.add("wrestling");
 	      
 	      return suspiciousLabels;
+   }
+   
+   void publishSNS(String label, Context context) {
+	   LambdaLogger logger = context.getLogger();
+	   AmazonSNS snsClient = AmazonSNSClientBuilder.standard().withRegion(Regions.AP_NORTHEAST_2).build();
+	   
+	   String topicArn = "arn:aws:sns:ap-northeast-2:964962553544:Email";
+	   
+	   //publish to an SNS topic
+	   String msg = "Suspicious activity detected with label: " + label;
+	   PublishRequest publishRequest = new PublishRequest(topicArn, msg);
+	   PublishResult publishResult = snsClient.publish(publishRequest);
+	   //print MessageId of message published to SNS topic
+	   logger.log("MessageId - " + publishResult.getMessageId());
+
    }
 }
 
