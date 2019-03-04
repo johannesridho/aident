@@ -153,7 +153,7 @@ public class JobCompletionHandler implements RequestHandler<SNSEvent, String> {
 		suspiciousLabels.add("flame");
 		suspiciousLabels.add("flare");
 		suspiciousLabels.add("quake");
-		suspiciousLabels.add("grand theft auto");
+		suspiciousLabels.add("grand-theft-auto");
 
 		return suspiciousLabels;
 	}
