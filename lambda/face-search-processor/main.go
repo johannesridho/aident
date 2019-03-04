@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -10,19 +11,40 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/rekognition"
 	"github.com/aws/aws-sdk-go/service/sns"
+	"io/ioutil"
 	"log"
 	"math"
+	"net/http"
 	"os"
 	"strings"
 )
 
 type Configuration struct {
-	Region            string
-	TargetSnsTopicArn string
+	Region                 string
+	TargetSnsTopicArn      string
+	FbMessengerAccessToken string
 }
 
 type SnsMessage struct {
 	JobId string `json:"JobId"`
+}
+
+type GetMessageCreativeIdRequest struct {
+	Messages []interface{} `json:"messages"`
+}
+
+type SimpleFbMessengerText struct {
+	Text string `json:"text"`
+}
+
+type GetMessageCreativeIdResponse struct {
+	MessageCreativeId string `json:"message_creative_id"`
+}
+
+type BroadcastMessageRequest struct {
+	MessageCreativeId string `json:"message_creative_id"`
+	MessagingType     string `json:"messaging_type"`
+	Tag               string `json:"tag"`
 }
 
 func main() {
@@ -42,8 +64,9 @@ func FaceSearchProcessor(ctx context.Context, event events.SNSEvent) (string, er
 	log.Printf("Rekognition jobId: %s", jobId)
 
 	config := Configuration{
-		Region:            os.Getenv("REGION"),
-		TargetSnsTopicArn: os.Getenv("TARGET_SNS_TOPIC_ARN"),
+		Region:                 os.Getenv("REGION"),
+		TargetSnsTopicArn:      os.Getenv("TARGET_SNS_TOPIC_ARN"),
+		FbMessengerAccessToken: os.Getenv("FB_MESSENGER_ACCESS_TOKEN"),
 	}
 
 	log.Printf("start GetFaceSearch")
@@ -80,6 +103,7 @@ func FaceSearchProcessor(ctx context.Context, event events.SNSEvent) (string, er
 	message := strBuilder.String()
 	log.Println(message)
 	publishToSns(config, message)
+	broadcastToFbMessenger(config, message)
 
 	return "success", nil
 }
@@ -103,6 +127,8 @@ func getFaceSearchResult(config Configuration, jobId string) (*rekognition.GetFa
 }
 
 func publishToSns(config Configuration, message string) error {
+	log.Print("start publish message to SNS")
+
 	session, err := session.NewSession(&aws.Config{Region: aws.String(config.Region)})
 	if err != nil {
 		return err
@@ -113,5 +139,77 @@ func publishToSns(config Configuration, message string) error {
 	snsClient := sns.New(session)
 	snsClient.Publish(&input)
 
+	log.Print("finished publish message to SNS")
+
 	return nil
+}
+
+func broadcastToFbMessenger(config Configuration, message string) {
+	log.Print("start broadcast message to FB Messenger")
+
+	messageCreativeId, err := getMessageCreativeId(config, message)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	broadcastMessageUrl := fmt.Sprintf(
+		"https://graph.facebook.com/v2.11/me/broadcast_messages?access_token=%s",
+		config.FbMessengerAccessToken,
+	)
+
+	req := BroadcastMessageRequest{
+		MessageCreativeId: messageCreativeId,
+		MessagingType:     "MESSAGE_TAG",
+		Tag:               "NON_PROMOTIONAL_SUBSCRIPTION",
+	}
+
+	log.Println("cret", messageCreativeId)
+
+	payload, err := json.Marshal(req)
+	res, err := http.Post(broadcastMessageUrl, "application/json", bytes.NewBuffer(payload))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer res.Body.Close()
+
+	responseBytes, err := ioutil.ReadAll(res.Body)
+	log.Printf("received broadcast response: %s, status code: %d", string(responseBytes), res.StatusCode)
+
+	log.Print("finished broadcast message to FB Messenger")
+}
+
+func getMessageCreativeId(config Configuration, message string) (string, error) {
+	getMessageCreativeIdUrl := fmt.Sprintf(
+		"https://graph.facebook.com/v2.11/me/message_creatives?access_token=%s",
+		config.FbMessengerAccessToken,
+	)
+
+	simpleText := SimpleFbMessengerText{Text: message}
+
+	messages := []interface{}{simpleText}
+
+	req := GetMessageCreativeIdRequest{Messages: messages}
+
+	payload, err := json.Marshal(req)
+
+	res, err := http.Post(getMessageCreativeIdUrl, "application/json", bytes.NewBuffer(payload))
+	if err != nil {
+		return "", err
+	}
+
+	defer res.Body.Close()
+
+	getMessageCreativeIdResponse := GetMessageCreativeIdResponse{}
+	err = json.NewDecoder(res.Body).Decode(&getMessageCreativeIdResponse)
+	if err != nil {
+		return "", err
+	}
+
+	log.Printf(
+		"received messageCreativeId: %s, status code: %d",
+		getMessageCreativeIdResponse.MessageCreativeId, res.StatusCode,
+	)
+
+	return getMessageCreativeIdResponse.MessageCreativeId, nil
 }
