@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>View all</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <title>Aident</title>
 </head>
 <body>
-  <h1>View all</h1>
-  {{#each data}}
-    <p>{{this}}"</p>
-  {{/each}}
+  <div class="all">
+    <div class="top">
+      <h1>Report received, thank you!</h1>
+      <p>Your report history:</p>
+      {{#each data}}
+        <p class="point">{{this}}"</a></p>
+      {{/each}}
+      
+      <button class="back" onclick="window.history.go(-1)">Back</button>
+    </div>
+  </div>
+
 </body>
 </html>

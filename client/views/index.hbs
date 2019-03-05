@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>S3 Demo</title>
+  <title>Aident</title>
+  <link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body>
-  <p>Upload file to S3</p>
-  <form action="/single" method="POST" enctype="multipart/form-data">
-    <fieldset>
-      <legend>Upload file</legend>
-      <input type="file" name="video">
-      <input type="submit">
-    </fieldset>
-  </form>
+  <div class="all">
+    <div class="top">
+      <h1>Aident</h1>
+      <p>Make your city smart, secure, and accessible through technology</p>
+    </div>
+
+    <form action="/single" method="POST" enctype="multipart/form-data">
+      <input class="input-file" id="my-file" type="file" name="video" multiple>
+      <p>Select files. Or drag your files here.</p>
+      <button type="submit">Upload</button>
+    </form>
+  </div>
+
 </body>
+
 </html>

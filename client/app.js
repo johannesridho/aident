@@ -102,6 +102,8 @@ app.get('/url/:filename', (req, res, next) => {
   })
 });
 
+app.use(express.static(__dirname + '/public'));
+
 app.use((req,res) => {
   res.status(404).send('Error 404');
 });
