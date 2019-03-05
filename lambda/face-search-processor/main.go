@@ -89,12 +89,12 @@ func FaceSearchProcessor(ctx context.Context, event events.SNSEvent) (string, er
 	}
 
 	var strBuilder strings.Builder
-	strBuilder.WriteString(fmt.Sprintf("Job Id: %s\n", jobId))
+	strBuilder.WriteString(fmt.Sprintf("Analysis result for video with job id: %s\n", jobId))
 
 	if len(criminalFacesMap) == 0 {
 		strBuilder.WriteString("There is no criminal suspect in this video")
 	} else {
-		strBuilder.WriteString("Detected criminal suspect:\n")
+		strBuilder.WriteString("Detected criminal suspects:\n")
 		for key, val := range criminalFacesMap {
 			strBuilder.WriteString(fmt.Sprintf("name: %s - similarity: %f\n", key, val))
 		}
