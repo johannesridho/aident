@@ -25,7 +25,6 @@ body {
 }
 .all {
   position: absolute;
-  top: 20%;
   left: 50%;
 }
 .top {
@@ -84,6 +83,10 @@ button:active {
 }
 .point {
   color:#aaa;
+}
+.input-file {
+  width: inherit;
+  height: inherit;
 }
 
 
