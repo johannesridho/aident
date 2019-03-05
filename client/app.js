@@ -4,7 +4,6 @@ var app = express();
 var scripts = [{ script: '/js/script.js' }];
 require('dotenv').config();
 
-
 // Set view engine
 app.engine('hbs', exphbs());
 app.set('view engine', 'hbs');
@@ -36,7 +35,7 @@ var upload = multer({
     // contentType: multerS3.AUTO_CONTENT_TYPE, 
     // Set key/ filename as original uploaded name
     key: function (req, file, cb) {
-      cb(null, file.originalname)
+      cb(null, file.originalname.replace(/\s+/g, '-'))
     }
   })
 })
