@@ -3,6 +3,9 @@ body {
   color: #7F8C9A;
   background: #FCFDFD;
 }
+h1 {
+  font-size: 75px
+}
 h1, h2, p {
   margin-bottom: 5px;
   font-weight: normal;
@@ -15,6 +18,7 @@ p {
 h2 {
   margin: 5px 0 2em;
   color: #1ABC9C;
+  font-size: 25px;
 }
 body {
   background: rgba(0,0,0,0.9);
@@ -27,7 +31,7 @@ body {
 .top {
   margin-left: -250px;
   width: 500px;
-  height: 200px;
+  height: 270px;
 }
 form {
   margin-top: -100px;
@@ -59,13 +63,14 @@ button {
   background: #16a085;
   border: none;
   width: 508px;
-  height: 35px;
-  margin-top: -20px;
+  height: 55px;
+  margin-top: -5px;
   margin-left: -4px;
   border-radius: 4px;
   border-bottom: 4px solid #117A60;
   transition: all .2s ease;
   outline: none;
+  font-size: 25px;
 }
 button:hover {
   background: #149174;
