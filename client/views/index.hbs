@@ -7,6 +7,8 @@
 </head>
 
 <body>
+  <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
   <div class="all">
     <div class="top">
       <h1>Aident</h1>
@@ -21,5 +23,9 @@
   </div>
 
 </body>
+
+{{#each scripts}}
+<script src="{{script}}"></script>
+{{/each}}
 
 </html>

@@ -1,6 +1,7 @@
 var express = require('express');
 var exphbs = require('express-handlebars');
 var app = express();
+var scripts = [{ script: '/js/script.js' }];
 require('dotenv').config();
 
 
@@ -42,7 +43,7 @@ var upload = multer({
 
 // Express routes
 app.get('/', (req, res, next) => {
-  res.render('index');
+  res.render('index', {scripts: scripts});
 });
 
 // Upload single file endpoint (calls on upload middleware above)
