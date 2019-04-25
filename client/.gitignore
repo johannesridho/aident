@@ -8,3 +8,5 @@ node_modules
 !.elasticbeanstalk/*.global.yml
 .git
 .ebextensions/env.config
+*.pem
+*.crt

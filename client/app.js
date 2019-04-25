@@ -2,6 +2,7 @@ var express = require('express');
 var exphbs = require('express-handlebars');
 var app = express();
 var scripts = [{ script: '/js/script.js' }];
+var liveScripts = [{ script: '/js/live.js' }];
 require('dotenv').config();
 
 // Set view engine
@@ -43,6 +44,10 @@ var upload = multer({
 // Express routes
 app.get('/', (req, res, next) => {
   res.render('index', {scripts: scripts});
+});
+
+app.get('/live', (req, res, next) => {
+  res.render('live', {scripts: liveScripts});
 });
 
 // Upload single file endpoint (calls on upload middleware above)

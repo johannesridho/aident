@@ -1,0 +1,33 @@
+<div id="container" style="display: flex; flex-direction: column; align-items: center;">
+	<video id="mirror" autoplay muted></video>
+
+    <button style="margin-top: 30px" id="start">Start Streaming</button>
+    <button style="margin-top: 30px; margin-bottom: 30px" id="stop">Stop Streaming</button>
+
+	<div>
+		<span>Recorded: <span id="bytesRecorded">0</span> bytes</span>;
+		<span>Uploaded: <span id="bytesUploaded">0</span> bytes</span>
+
+		<p><button class="screenshot-button">Take screenshot</button>
+		<img id="screenshot-img" src="">
+		<img src="">
+		<canvas style="display:none;"></canvas>
+	</div>
+
+	<div>
+		<span id="location"></span>
+	</div>
+	
+</div>
+
+<!-- include adapter for srcObject shim -->
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aws-sdk/2.422.0/aws-sdk.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/5.5.6/Rx.js"></script>
+
+{{#each scripts}}
+<script src="{{script}}"></script>
+{{/each}}
+
+<link rel="stylesheet" href="../css/live.css">
+<link rel="stylesheet" href="../css/style.css">

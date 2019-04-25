@@ -78,6 +78,10 @@ button:hover {
 button:active {
   border:0;
 }
+button:disabled {
+  background: #888888;
+  border-bottom: 4px solid #555555;
+}
 .back {
   margin-top: 20px;
 }

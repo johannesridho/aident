@@ -117,6 +117,8 @@ public class JobCompletionHandler implements RequestHandler<SNSEvent, String> {
 
 		if (suspiciousLabelsCount > 0) {
 			publishSNS(suspiciousLabel, startJobId, context);
+		} else {
+			publishSNS("", startJobId, context);
 		}
 
 		logger.log("Total number of labels : " + labelsCount);
@@ -131,9 +133,14 @@ public class JobCompletionHandler implements RequestHandler<SNSEvent, String> {
 		AmazonSNS snsClient = AmazonSNSClientBuilder.standard().withRegion(Regions.AP_NORTHEAST_2).build();
 
 		String topicArn = "arn:aws:sns:ap-northeast-2:964962553544:Email";
-
+		String msg;
+		
 		//publish to an SNS topic
-		String msg = "JobId: " + jobId + "\nSuspicious activity detected with label: " + label;
+//		if ("".equals(label)) {
+////			msg = "JobId: " + jobId + "\nNo suspicious activity detected";
+//		} else {
+			msg = "JobId: " + jobId + "\nSuspicious activity detected with label: " + label;
+//		}
 		PublishRequest publishRequest = new PublishRequest(topicArn, msg);
 		PublishResult publishResult = snsClient.publish(publishRequest);
 		//print MessageId of message published to SNS topic
